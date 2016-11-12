@@ -12,5 +12,17 @@
 */
 
 $app->get('/', function () use ($app) {
-    return $app->version();
+	return view('home');
+});
+
+$app->get('/billings',function(){
+ return view('billings.main');
+});
+
+$app->get('/repair',function(){
+ return view('repairs.main');
+});
+
+$app->get('/inquiries',function(){
+ return view('inquiries.main');
 });
