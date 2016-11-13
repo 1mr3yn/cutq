@@ -1,5 +1,5 @@
 <?php
-
+use Twilio\Rest\Client;
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -11,20 +11,98 @@
 |
 */
 
-$app->get('/', function () use ($app) {
+$app->get('/', function () use ($app) {  
 	return view('home');
 });
 
-$app->get('/billings',function(){
- return view('billings.main');
+
+
+$app->get('/call-settings/{digits}',function($digits){
+Log::info($digits);
+header("content-type: text/xml");
+echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+return view('call',['digits'=>$digits])->render();
+
+});
+$app->get('fallback',function(){
+ Log::info(app('request')->fullUrl());
+});
+$app->get('call',function() {
+  //we need to wait 23 seconds because of voice spiel
+  $spiel_wait = str_repeat("w",40);
+  $existing_customer  = "w1w";
+  $phone_number  ="0464545131";
+  $confirmation = str_repeat("w", strlen("0464545131")*2)."w1";
+  $digits = app('request')->get('digits');
+
+  $sendDigits = str_replace("w",",",join("",[$spiel_wait,$existing_customer,$phone_number,$confirmation,$digits]));
+  
+  //make the twilio call here
+  $AccountSid = env("TWILIO_SID");
+  $AuthToken = env("TWILIO_AUTH_TOKEN");
+
+  // Step 3: Instantiate a new Twilio Rest Client
+  $client = new Client($AccountSid, $AuthToken);
+
+    try {
+        // Initiate a new outbound call
+        $call = $client->account->calls->create(
+            // Step 4: Change the 'To' number below to whatever number you'd like 
+            // to call.
+            "+638888171",
+            // Step 5: Change the 'From' number below to be a valid Twilio number 
+            // that you've purchased or verified with Twilio.
+            "+16467986317",
+
+            // Step 6: Set the URL Twilio will request when the call is answered.
+            array(
+              //"url" => "http://demo.twilio.com/welcome/voice/"
+              "url" => "http://cutq.ddns.net/call-settings/{$digits}",
+		"method"=>"GET",
+"FallbackUrl"=> "http://cutq.ddns.net/fallback",
+"FallbackMethod" => "GET"
+            )
+        );
+        echo "Started call: " . $call->sid;
+    } catch (Exception $e) {
+	Log::info($e->getMessage());
+        echo "Error: " . $e->getMessage();
+    }
+
 });
 
-$app->get('/repair',function(){
- return view('repairs.main');
-});
 
-$app->get('/inquiries',function(){
- return view('inquiries.main');
+$app->get("test-twilio",function(){
+   
+    //require_once "vendor/autoload.php";
+    
+    
+    // Step 2: Set our AccountSid and AuthToken from https://twilio.com/console
+    $AccountSid = env("TWILIO_SID");
+    $AuthToken = env("TWILIO_AUTH_TOKEN");
+
+    // Step 3: Instantiate a new Twilio Rest Client
+    $client = new Client($AccountSid, $AuthToken);
+
+    try {
+        // Initiate a new outbound call
+        $call = $client->account->calls->create(
+            // Step 4: Change the 'To' number below to whatever number you'd like 
+            // to call.
+            "+639990505595",
+
+            // Step 5: Change the 'From' number below to be a valid Twilio number 
+            // that you've purchased or verified with Twilio.
+            "+16467986317",
+
+            // Step 6: Set the URL Twilio will request when the call is answered.
+            array("url" => "http://demo.twilio.com/welcome/voice/")
+        );
+        echo "Started call: " . $call->sid;
+    } catch (Exception $e) {
+        echo "Error: " . $e->getMessage();
+    }
+
 });
 
 

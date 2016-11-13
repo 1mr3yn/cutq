@@ -77,7 +77,8 @@
 <script src="/js/app.min.js"></script>
 
 <script src="/js/demo.js"></script>
- 
+<script src="/js/cutq.js"></script>
+@yield('js')
 
 </body>
 </html>
