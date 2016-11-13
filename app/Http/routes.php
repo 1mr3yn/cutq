@@ -26,3 +26,8 @@ $app->get('/repair',function(){
 $app->get('/inquiries',function(){
  return view('inquiries.main');
 });
+
+
+$app->get('/dashboard',function(){
+ return view('dashboard.main');
+});
