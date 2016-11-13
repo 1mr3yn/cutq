@@ -17,14 +17,16 @@ $app->get('/', function () use ($app) {
 
 
 
-$app->post('/call-settings/{digits}',function($digts){
-
+$app->get('/call-settings/{digits}',function($digits){
+Log::info($digits);
 header("content-type: text/xml");
 echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-return View::make('call',['digits'=>$digits])->render();
+return view('call',['digits'=>$digits])->render();
 
 });
-
+$app->get('fallback',function(){
+ Log::info(app('request')->fullUrl());
+});
 $app->get('call',function() {
   //we need to wait 23 seconds because of voice spiel
   $spiel_wait = str_repeat("w",40);
@@ -36,8 +38,8 @@ $app->get('call',function() {
   $sendDigits = str_replace("w",",",join("",[$spiel_wait,$existing_customer,$phone_number,$confirmation,$digits]));
   
   //make the twilio call here
-  $AccountSid = "AC634299a8bf9c2b6b009d34c8ed2bfab7";env("TWILIO_SID");
-  $AuthToken = "152937d69066d103a4f3a26c1b7c5391";env("TWILIO_AUTH_TOKEN");
+  $AccountSid = env("TWILIO_SID");
+  $AuthToken = env("TWILIO_AUTH_TOKEN");
 
   // Step 3: Instantiate a new Twilio Rest Client
   $client = new Client($AccountSid, $AuthToken);
@@ -55,11 +57,15 @@ $app->get('call',function() {
             // Step 6: Set the URL Twilio will request when the call is answered.
             array(
               //"url" => "http://demo.twilio.com/welcome/voice/"
-              "url" => "http://cutq.ddns.net/call-settings/{$digits}"
+              "url" => "http://cutq.ddns.net/call-settings/{$digits}",
+		"method"=>"GET",
+"FallbackUrl"=> "http://cutq.ddns.net/fallback",
+"FallbackMethod" => "GET"
             )
         );
         echo "Started call: " . $call->sid;
     } catch (Exception $e) {
+	Log::info($e->getMessage());
         echo "Error: " . $e->getMessage();
     }
 
