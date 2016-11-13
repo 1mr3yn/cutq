@@ -13,7 +13,7 @@
       </section> <hr>
 
       
-         <div class="col-lg-6 col-xs-6">
+         <div class="col-md-3 col-md-offset-4 col-xs-6">
              <div class="box box-danger">
             
                   <div class="box-body">
@@ -63,7 +63,7 @@
              </div>
           </div>
 
-           <div class="col-lg-6 col-xs-6">
+         <!--   <div class="col-lg-6 col-xs-6">
              <div class="box box-danger">
                 
                   <div class="box-body">
@@ -71,7 +71,7 @@
                     <p class="local_storage"></p>
                   </div>
               </div>
-          </div>
+          </div> -->
 
         
        </div>
